@@ -14,7 +14,7 @@
 import requests 
 
 def printRespos(reponame):
-    url = 'https://nexus.fuchicorp.com/service/rest/v1/components?repository=webplatform'
+    url = 'https://nexus.devops-chicago.com/service/rest/v1/components?repository=webplatform'
     data = requests.get(url).json()
     for repo in data['items']:
         if reponame in  repo['name']:
