@@ -16,10 +16,12 @@ wget --quiet -O "$PWD/common_configuration.tfvars"\
   "https://raw.githubusercontent.com/fuchicorp/main-fuchicorp/master/project-configuration/google_account_information.tfvars"
 
 
-if grep -q google_project_id "$DATAFILE"; then 
-  PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
-else 
+stringExists="$(cat "$DATAFILE" | grep -cw "google_project_id")"
+
+if [ "$stringExists" -eq 0 ] > /dev/null; then 
   PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
+else 
+  PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
 fi
 
 BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
