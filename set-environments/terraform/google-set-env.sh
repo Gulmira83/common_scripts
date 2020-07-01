@@ -14,28 +14,22 @@ fi
 wget --quiet -O "$PWD/common_configuration.tfvars"\
   "https://raw.githubusercontent.com/fuchicorp/main-fuchicorp/master/project-configuration/google_account_information.tfvars"
 
-set +e 
-idExists="$(cat $DATAFILE | grep -cw '^google_project_id' 2>)"
+PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
+BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
 
-if [ "$idExists" -eq 0 ] > /dev/null; then 
-  echo "Getting <google_project_id> from $PWD/common_configuration.tfvars"
-  PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
-else 
-  echo "Getting <google_project_id> from $DATAFILE"
-  PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
+if [ -z "$PROJECT" ]
+then
+    echo "Inside <$DATAFILE> the <google_project_id> not found trying to find from <common_configuration.tfvars>"
+    echo "Using FuchiCorp Google Project ID for deployment. <google_project_id> : <$PROJECT>"
+    PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'  "$PWD/common_configuration.tfvars")
 fi
 
-
-bucketExists="$(cat $DATAFILE | grep -cw '^google_bucket_name')"
-
-if [ "$bucketExists" -eq 0 ] > /dev/null; then 
-  echo "Getting <google_bucket_name> from $PWD/common_configuration.tfvars"
-  BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
-else 
-  BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
-  echo "Getting <google_bucket_name> from $DATAFILE"
+if [ -z "$BUCKET" ]
+then
+  echo "Inside <$DATAFILE> the <google_bucket_name> not found trying to find from <common_configuration.tfvars>"
+  echo "Using FuchiCorp Google Bucket name for deployment. <google_bucket_name>: <$BUCKET>"
+  BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'   "$PWD/common_configuration.tfvars")
 fi
-set -e 
 
 ENVIRONMENT=$(sed -nr 's/^deployment_environment\s*=\s*"([^"]*)".*$/\1/p'    "$DATAFILE")
 DEPLOYMENT=$(sed -nr 's/^deployment_name\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
