@@ -6,16 +6,20 @@ DATAFILE="$PWD/$1"
 # these all variables should be created on your config file before you run script.
 # <ENVIRONMENT> <BUCKET> <DEPLOYMENT> <PROJECT> <CREDENTIALS>
 
+wget --quiet -O "$PWD/common_configuration.tfvars"\
+  "https://raw.githubusercontent.com/fuchicorp/main-fuchicorp/master/project-configuration/google_account_information.tfvars"
+
+
+PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
+BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
+ENVIRONMENT=$(sed -nr 's/^deployment_environment\s*=\s*"([^"]*)".*$/\1/p'   "$DATAFILE")
+DEPLOYMENT=$(sed -nr 's/^deployment_name\s*=\s*"([^"]*)".*$/\1/p'           "$DATAFILE")
+CREDENTIALS=$(sed -nr 's/^credentials\s*=\s*"([^"]*)".*$/\1/p'              "$DATAFILE")
+
 if [ ! -f "$DATAFILE" ]; then
   echo "setenv: Configuration file not found: $DATAFILE"
   return 1
 fi
-
-wget --quiet -O "$PWD/common_configuration.tfvars"\
-  "https://raw.githubusercontent.com/fuchicorp/main-fuchicorp/master/project-configuration/google_account_information.tfvars"
-
-PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
-BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
 
 if [ -z "$PROJECT" ]
 then
@@ -30,10 +34,6 @@ then
   echo "Using FuchiCorp Google Bucket name for deployment. <google_bucket_name>: <$BUCKET>"
   BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'   "$PWD/common_configuration.tfvars")
 fi
-
-ENVIRONMENT=$(sed -nr 's/^deployment_environment\s*=\s*"([^"]*)".*$/\1/p'    "$DATAFILE")
-DEPLOYMENT=$(sed -nr 's/^deployment_name\s*=\s*"([^"]*)".*$/\1/p'            "$DATAFILE")
-CREDENTIALS=$(sed -nr 's/^credentials\s*=\s*"([^"]*)".*$/\1/p'               "$DATAFILE")
 
 if [ -z "$ENVIRONMENT" ]
 then
