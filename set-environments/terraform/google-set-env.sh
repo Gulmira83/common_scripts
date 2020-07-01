@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/bin/bash -e 
 
-DIR=$(pwd)
-DATAFILE="$DIR/$1"
+DATAFILE="$PWD/$1"
 #
 # FuchiCorp common script to set up Google terraform environment variables
 # these all variables should be created on your config file before you run script.
@@ -15,21 +14,25 @@ fi
 wget --quiet -O "$PWD/common_configuration.tfvars"\
   "https://raw.githubusercontent.com/fuchicorp/main-fuchicorp/master/project-configuration/google_account_information.tfvars"
 
-idExists="$(cat "$DATAFILE" | grep -cw "^google_project_id")"
+idExists="$(cat $DATAFILE | grep -cw '^google_project_id')"
 
 if [ "$idExists" -eq 0 ] > /dev/null; then 
+  echo "Getting <google_project_id> from $PWD/common_configuration.tfvars"
   PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
 else 
+  echo "Getting <google_project_id> from $DATAFILE"
   PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
 fi
 
 
-bucketExists="$(cat "$DATAFILE" | grep -cw "^google_bucket_name")"
+bucketExists="$(cat $DATAFILE | grep -cw '^google_bucket_name')"
 
 if [ "$bucketExists" -eq 0 ] > /dev/null; then 
+  echo "Getting <google_bucket_name> from $PWD/common_configuration.tfvars"
   BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'             "$PWD/common_configuration.tfvars")
 else 
   BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'             "$DATAFILE")
+  echo "Getting <google_bucket_name> from $DATAFILE"
 fi
 
 
@@ -67,7 +70,7 @@ then
     return 1
 fi
 
-cat << EOF > "$DIR/backend.tf"
+cat << EOF > "$PWD/backend.tf"
 terraform {
   backend "gcs" {
     bucket  = "${BUCKET}"
@@ -76,12 +79,12 @@ terraform {
   }
 }
 EOF
-cat "$DIR/backend.tf"
+cat "$PWD/backend.tf"
 
-GOOGLE_APPLICATION_CREDENTIALS="${DIR}/${CREDENTIALS}"
+GOOGLE_APPLICATION_CREDENTIALS="${PWD}/${CREDENTIALS}"
 export GOOGLE_APPLICATION_CREDENTIALS
 export DATAFILE
-/bin/rm -rf "$DIR/.terraform" 2>/dev/null
+/bin/rm -rf "$PWD/.terraform" 2>/dev/null
 /bin/rm -rf "$PWD/common_configuration.tfvars" 2>/dev/null
 echo "setenv: Initializing terraform"
 terraform init #> /dev/null
