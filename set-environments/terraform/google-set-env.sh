@@ -24,15 +24,15 @@ fi
 if [ -z "$PROJECT" ]
 then
     echo "Inside <$DATAFILE> the <google_project_id> not found trying to find from <common_configuration.tfvars>"
-    echo "Using FuchiCorp Google Project ID for deployment. <google_project_id> : <$PROJECT>"
     PROJECT=$(sed -nr 's/^google_project_id\s*=\s*"([^"]*)".*$/\1/p'  "$PWD/common_configuration.tfvars")
+    echo "Using FuchiCorp Google Project ID for deployment. <google_project_id> : <$PROJECT>"
 fi
 
 if [ -z "$BUCKET" ]
 then
   echo "Inside <$DATAFILE> the <google_bucket_name> not found trying to find from <common_configuration.tfvars>"
-  echo "Using FuchiCorp Google Bucket name for deployment. <google_bucket_name>: <$BUCKET>"
   BUCKET=$(sed -nr 's/^google_bucket_name\s*=\s*"([^"]*)".*$/\1/p'   "$PWD/common_configuration.tfvars")
+  echo "Using FuchiCorp Google Bucket name for deployment. <google_bucket_name>: <$BUCKET>"
 fi
 
 if [ -z "$ENVIRONMENT" ]
